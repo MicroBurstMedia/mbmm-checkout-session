@@ -9,6 +9,6 @@
     "@google/generative-ai": "^0.1.0"
   },
 "scripts": {
-  "start": "node package.json
+  "start": "node package.json"
 }
   }
