@@ -43,7 +43,7 @@ app.post('/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       // UPDATED: Added .html to match your actual file
-      success_url: 'https://microburstmedia.github.io/digital-marketing-network/success.html',
+      success_url: 'https://mbmn-checkout-session.onrender.com',
       cancel_url: 'https://microburstmedia.github.io/digital-marketing-network/',
     });
     res.json({ id: session.id });
