@@ -26,4 +26,20 @@ app.post('/create-checkout-session', async (req, res) => {
   res.json({ id: session.id });
 });
 
+// --- CHATBOT ENDPOINT ---
+app.post('/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        
+        // Replace this with your actual Google Apps Script Web App URL
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyA6OpUvs_Dqx5mnTH2HMmTWwz6-VM_KkdTFmQEI64DsKnvYAFpch0424Ye-u1iLIOWXA/exec';
+
+        const response = await axios.post(scriptUrl, { message: message });
+        
+        res.json({ reply: response.data.reply });
+    } catch (err) {
+        res.status(500).json({ reply: "The operator is busy. Please try again." });
+    }
+});
+
 app.listen(3000, () => console.log('Server running on port 3000'));
