@@ -59,9 +59,7 @@ app.post('/chat', async (req, res) => {
 
         // 2. CHECK IF THE SHEET GAVE A VALID RESPONSE
         // Note: Make sure this check matches the "No match" phrase in your Google Apps Script
-        if (sheetReply && !sheetReply.includes("I'm not sure about that")) {
-            return res.json({ reply: sheetReply });
-        }
+        if (sheetReply && !sheetReply.includes("out of my scope of support")) { return res.json({ reply: sheetReply }); }
 
         // 3. IF NO SHEET MATCH, USE GEMINI AS THE BACKUP
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
