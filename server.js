@@ -3,26 +3,12 @@ const app = express();
 const cors = require('cors');
 const axios = require('axios');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// --- 1. MIDDLEWARE & CONFIG ---
+// --- 1. CONFIGURATION ---
 app.use(express.json());
 app.use(cors());
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// --- 2. KNOWLEDGE BASE ---
-const systemInstruction = `
-Role: Lead AI Strategist & IT Consultant for MicroBurstMedia (MBMN).
-Tone: Professional, expert, adaptive, and efficient.
-Knowledge Base:
-- Core Strategy: The "Interlink" method—a proprietary strategy for automating web traffic and revenue.
-- Automation Stack: Expert in Airtable, Google Sheets, Google Apps Script, and Make.com.
-- Products: "The Beginner’s Guide to AI Automation Setup Systems™" (E-book).
-- Contact: microburstmediasolutions@outlook.com | +1 (954) 600-8695.
-`;
-
-// --- 3. STRIPE ENDPOINT ---
+// --- 2. STRIPE ENDPOINT (Purchases) ---
 app.post('/create-checkout-session', async (req, res) => {
     try {
         const session = await stripe.checkout.sessions.create({
@@ -31,7 +17,7 @@ app.post('/create-checkout-session', async (req, res) => {
                 price_data: {
                     currency: 'usd',
                     product_data: { name: 'AI Automation Setup Systems E-Book' },
-                    unit_amount: 9700, 
+                    unit_amount: 9700, // $97.00
                 },
                 quantity: 1,
             }],
@@ -42,46 +28,32 @@ app.post('/create-checkout-session', async (req, res) => {
         res.json({ id: session.id });
     } catch (err) {
         console.error("Stripe Error:", err.message);
-        res.status(500).json({ error: "Checkout failed." });
+        res.status(500).json({ error: "Checkout connection failed." });
     }
 });
 
-// --- 4. CHATBOT ENDPOINT (Safe-Relay Logic) ---
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const axios = require('axios');
-
-app.use(express.json());
-app.use(cors());
-
-// --- THE BRIDGE ---
+// --- 3. CHATBOT ENDPOINT (Google Sheets Only) ---
 app.post('/chat', async (req, res) => {
     try {
         const { message } = req.body;
         
-        // YOUR NEW WEB APP URL FROM GOOGLE
+        // YOUR GOOGLE APPS SCRIPT URL
         const scriptUrl = 'https://script.google.com/macros/s/AKfycbzYsW53JScMQ1lpe0Jfax7MzylYVXu0MypvBghtPHMSPEBraYMrpy2X4M0P-NcDkWVn/exec';
 
-        console.log("Sending message to Sheets:", message);
-
-        const response = await axios.post(scriptUrl, { message: message }, { timeout: 8000 });
+        // Direct hand-off to Google Sheets
+        const response = await axios.post(scriptUrl, { message: message });
         
-        console.log("Sheets responded with:", response.data);
+        // Send the Sheet's answer back to the website
         res.json({ reply: response.data.reply });
 
     } catch (err) {
-        console.error("Connection Error Details:", err.message);
-        res.status(500).json({ reply: "The Bridge is down. Check Render Logs." });
+        console.error("Chat Connection Error:", err.message);
+        res.status(500).json({ reply: "The MBMN Switchboard is currently busy. Please try again." });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`MBMN Bridge Active on Port ${PORT}`));
-
-// --- 5. SERVER START (Crucial Ignition Lines) ---
+// --- 4. START SERVER ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log('MBMN Node Active and Interlinked');
+    console.log(`MBMN System Active on Port ${PORT}`);
 });
